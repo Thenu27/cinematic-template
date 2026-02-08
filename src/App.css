@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Acme&display=swap');
+
+
+*{
+  box-sizing: border-box;
+  overflow-x: hidden;
+  margin: 0;
+  font-family: 'Acme',sans-serif;
+}
+
+.app{
+  position: relative;
+}
+
+button {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+
+a{
+    transition: transform 0.5s ease;
+
+}
+a:hover{
+    transform: translateY(-2px);
+
+}
