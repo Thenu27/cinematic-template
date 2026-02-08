@@ -88,7 +88,8 @@ const HeroSection = () => {
         playsInline
         preload="auto"
         disablePictureInPicture
-        onCanPlayThrough={() => setDesktopReady(true)}
+        onLoadedData={() => setDesktopReady(true)}
+
       >
         <source src="/Robot.webm" type="video/webm" />
       </video>
@@ -103,7 +104,8 @@ const HeroSection = () => {
           playsInline
           preload="auto"
           disablePictureInPicture
-          onCanPlayThrough={() => setMobileReady(true)}
+          onLoadedData={() => setMobileReady(true)}
+
         >
           <source src="/RobotSmall.webm" type="video/webm" />
         </video>
