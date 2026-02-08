@@ -12,26 +12,40 @@ const itemVariants = {
   show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: 'easeOut' } },
 };
 
-const HeroSection = () => {
+export default function HeroSection() {
+  const [pageReady, setPageReady] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
 
   const desktopRef = useRef(null);
-  const mobileRef = useRef(null);
 
+  // 1) Wait for the whole page (images/css/fonts/etc.)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      desktopRef.current?.play();
-      mobileRef.current?.play();
-    }, 1000);
+    const onLoad = () => setPageReady(true);
 
-    return () => clearTimeout(timer);
+    if (document.readyState === 'complete') {
+      setPageReady(true);
+    } else {
+      window.addEventListener('load', onLoad);
+      return () => window.removeEventListener('load', onLoad);
+    }
   }, []);
+
+  // 2) When both are ready -> play video
+  useEffect(() => {
+    if (!pageReady || !videoReady) return;
+    desktopRef.current?.play().catch(() => {});
+  }, [pageReady, videoReady]);
+
+  const showHero = pageReady && videoReady;
 
   return (
     <div className="hero-section">
 
-      {/* Show text ONLY when video is ready */}
-      {videoReady && (
+      {/* Loader while waiting */}
+      {!showHero && <div className="hero-loader">Loading...</div>}
+
+      {/* Text only after EVERYTHING is ready */}
+      {showHero && (
         <motion.div
           className="hero-text-container"
           variants={containerVariants}
@@ -50,11 +64,10 @@ const HeroSection = () => {
         </motion.div>
       )}
 
-      {/* Desktop video */}
+      {/* Video is rendered but NOT autoplaying until we allow it */}
       <video
         ref={desktopRef}
         className="robot-vid desktop-vid"
-        autoPlay
         muted
         loop
         playsInline
@@ -65,24 +78,6 @@ const HeroSection = () => {
         <source src="/Robot.webm" type="video/webm" />
       </video>
 
-      {/* Mobile video */}
-      <div className="mobile-video-wrapper">
-        <video
-          ref={mobileRef}
-          className="robot-vid mobile-vid"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          disablePictureInPicture
-        >
-          <source src="/RobotSmall.webm" type="video/webm" />
-        </video>
-      </div>
-
     </div>
   );
-};
-
-export default HeroSection;
+}
