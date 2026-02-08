@@ -1,6 +1,6 @@
 import './HeroSection.css';
 import { motion } from 'framer-motion';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const containerVariants = {
   hidden: {},
@@ -13,6 +13,8 @@ const itemVariants = {
 };
 
 const HeroSection = () => {
+  const [videoReady, setVideoReady] = useState(false);
+
   const desktopRef = useRef(null);
   const mobileRef = useRef(null);
 
@@ -27,49 +29,56 @@ const HeroSection = () => {
 
   return (
     <div className="hero-section">
-      <motion.div
-        className="hero-text-container"
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-      >
-        <motion.h1 variants={itemVariants}>Where Creativity Falls</motion.h1>
-        <motion.p variants={itemVariants}>
-          Into motion, depth, and unforgettable digital experiences
-        </motion.p>
 
-        <motion.div className="hero-btn-container" variants={itemVariants}>
-          <button className="hero-abt-btn">About</button>
-          <button className="hero-contact-btn">Contact</button>
+      {/* Show text ONLY when video is ready */}
+      {videoReady && (
+        <motion.div
+          className="hero-text-container"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
+          <motion.h1 variants={itemVariants}>Where Creativity Falls</motion.h1>
+          <motion.p variants={itemVariants}>
+            Into motion, depth, and unforgettable digital experiences
+          </motion.p>
+
+          <motion.div className="hero-btn-container" variants={itemVariants}>
+            <button className="hero-abt-btn">About</button>
+            <button className="hero-contact-btn">Contact</button>
+          </motion.div>
         </motion.div>
-      </motion.div>
+      )}
 
       {/* Desktop video */}
       <video
         ref={desktopRef}
         className="robot-vid desktop-vid"
+        autoPlay
         muted
         loop
         playsInline
         preload="auto"
         disablePictureInPicture
+        onCanPlayThrough={() => setVideoReady(true)}
       >
         <source src="/Robot.webm" type="video/webm" />
       </video>
 
       {/* Mobile video */}
-      <div className='mobile-video-wrapper'>
-      <video
-        ref={mobileRef}
-        className="robot-vid mobile-vid"
-        muted
-        loop
-        playsInline
-        preload="auto"
-        disablePictureInPicture
-      >
-        <source src="/RobotSmall.webm" type="video/webm" />
-      </video>
+      <div className="mobile-video-wrapper">
+        <video
+          ref={mobileRef}
+          className="robot-vid mobile-vid"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          disablePictureInPicture
+        >
+          <source src="/RobotSmall.webm" type="video/webm" />
+        </video>
       </div>
 
     </div>
