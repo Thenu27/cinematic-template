@@ -12,13 +12,25 @@ const itemVariants = {
   show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: 'easeOut' } },
 };
 
-export default function HeroSection() {
+const HeroSection = () => {
+  const [desktopReady, setDesktopReady] = useState(false);
+  const [mobileReady, setMobileReady] = useState(false);
   const [pageReady, setPageReady] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const desktopRef = useRef(null);
+  const mobileRef = useRef(null);
 
-  // 1) Wait for the whole page (images/css/fonts/etc.)
+  // Detect mobile/desktop
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  // Page fully loaded
   useEffect(() => {
     const onLoad = () => setPageReady(true);
 
@@ -30,21 +42,24 @@ export default function HeroSection() {
     }
   }, []);
 
-  // 2) When both are ready -> play video
-  useEffect(() => {
-    if (!pageReady || !videoReady) return;
-    desktopRef.current?.play().catch(() => {});
-  }, [pageReady, videoReady]);
+  // Only wait for the active video
+  const activeVideoReady = isMobile ? mobileReady : desktopReady;
+  const showHero = pageReady && activeVideoReady;
 
-  const showHero = pageReady && videoReady;
+  // Play ONLY after everything is ready
+  useEffect(() => {
+    if (!showHero) return;
+    const vid = isMobile ? mobileRef.current : desktopRef.current;
+    vid?.play().catch(() => {});
+  }, [showHero, isMobile]);
 
   return (
     <div className="hero-section">
 
-      {/* Loader while waiting */}
+      {/* Loader overlay */}
       {!showHero && <div className="hero-loader">Loading...</div>}
 
-      {/* Text only after EVERYTHING is ready */}
+      {/* Text only when ready */}
       {showHero && (
         <motion.div
           className="hero-text-container"
@@ -64,7 +79,7 @@ export default function HeroSection() {
         </motion.div>
       )}
 
-      {/* Video is rendered but NOT autoplaying until we allow it */}
+      {/* Desktop video (no autoplay) */}
       <video
         ref={desktopRef}
         className="robot-vid desktop-vid"
@@ -73,11 +88,29 @@ export default function HeroSection() {
         playsInline
         preload="auto"
         disablePictureInPicture
-        onCanPlayThrough={() => setVideoReady(true)}
+        onCanPlayThrough={() => setDesktopReady(true)}
       >
         <source src="/Robot.webm" type="video/webm" />
       </video>
 
+      {/* Mobile video (no autoplay) */}
+      <div className="mobile-video-wrapper">
+        <video
+          ref={mobileRef}
+          className="robot-vid mobile-vid"
+          muted
+          loop
+          playsInline
+          preload="auto"
+          disablePictureInPicture
+          onCanPlayThrough={() => setMobileReady(true)}
+        >
+          <source src="/RobotSmall.webm" type="video/webm" />
+        </video>
+      </div>
+
     </div>
   );
-}
+};
+
+export default HeroSection;
